@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="工作台">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#EAE2D8">
+<meta name="application-name" content="WorkBuddy 工作台">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<title>WorkBuddy 工作台</title>
+<style>
+:root {
+  --bg-page:#F9F4EF; --bg-nav:#EDE5DC; --bg-nav-active:#E0D4C8;
+  --bg-card:#FFF9F4; --bg-card-alt:#FAF2EA; --bg-input:#FFF5EE;
+  --border-light:#E0D4C8; --border-medium:#D0C4B4; --border-strong:#C0B4A2;
+  --text-primary:#5A4E42; --text-secondary:#7A6E60; --text-muted:#B0A494;
+  --c-media:#D4A88C; --c-media-bg:#F4EAE0;
+  --c-exam:#9AAC84; --c-exam-bg:#EAF2E4;
+  --c-health:#C8AE8C; --c-health-bg:#F2EAE0;
+  --c-finance:#BC8868; --c-finance-bg:#F0E4DA;
+  --c-success:#90AE80; --c-success-bg:#E8F2E2;
+  --c-warning:#C8A880;
+  --shadow-soft:0 2px 10px rgba(90,78,66,0.04);
+  --shadow-card:0 1px 4px rgba(90,78,66,0.05);
+  --radius:14px; --radius-sm:10px; --radius-xs:7px;
+  --nav-width:68px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;background:var(--bg-page);color:var(--text-primary);line-height:1.6;height:100%;overflow:hidden;position:fixed;width:100%;}
+.app-shell{display:flex;height:100vh;height:100dvh;}
+
+/* 左侧导航 */
+.nav-sidebar{width:var(--nav-width);background:var(--bg-nav);border-right:1px solid var(--border-light);display:flex;flex-direction:column;align-items:center;padding-top:var(--safe-top);flex-shrink:0;z-index:200;}
+.nav-logo{width:100%;padding:14px 0 10px;text-align:center;border-bottom:1px solid var(--border-light);}
+.nav-logo-icon{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;background:var(--bg-card);border-radius:12px;border:1px solid var(--border-light);font-size:22px;box-shadow:var(--shadow-card);}
+.nav-item{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 6px;cursor:pointer;transition:all 0.25s;position:relative;min-height:58px;}
+.nav-item:active{transform:scale(0.92);}
+.nav-item .nav-icon{font-size:22px;line-height:1;transition:transform 0.2s;}
+.nav-item .nav-label{font-size:10px;color:var(--text-muted);margin-top:2px;font-weight:500;transition:color 0.2s;}
+.nav-item.active{background:var(--bg-nav-active);}
+.nav-item.active .nav-icon{transform:scale(1.15);}
+.nav-item.active.nav-overview .nav-label{color:var(--text-primary);font-weight:700;}
+.nav-item.active.nav-overview::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--border-strong);}
+.nav-item.active.nav-media .nav-label{color:var(--c-media);font-weight:700;}
+.nav-item.active.nav-media::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--c-media);}
+.nav-item.active.nav-exam .nav-label{color:var(--c-exam);font-weight:700;}
+.nav-item.active.nav-exam::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--c-exam);}
+.nav-item.active.nav-health .nav-label{color:var(--c-health);font-weight:700;}
+.nav-item.active.nav-health::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--c-health);}
+.nav-item.active.nav-finance .nav-label{color:var(--c-finance);font-weight:700;}
+.nav-item.active.nav-finance::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--c-finance);}
+.nav-footer{width:100%;padding:8px 0;text-align:center;border-top:1px solid var(--border-light);margin-top:auto;}
+.nav-footer .countdown-num{font-size:18px;font-weight:800;color:var(--c-exam);line-height:1;}
+.nav-footer .countdown-label{font-size:9px;color:var(--text-muted);margin-top:1px;}
+
+/* 右侧内容 */
+.content-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-page);}
+.content-header{padding:12px 18px;padding-top:calc(12px + var(--safe-top));background:var(--bg-card);border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.content-header .page-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.content-header .page-date{font-size:12px;color:var(--text-muted);}
+.content-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 16px;padding-bottom:calc(var(--safe-bottom)+20px);}
+.tab-page{display:none;}.tab-page.active{display:block;}
+
+/* 卡片 */
+.card{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border-light);padding:16px;box-shadow:var(--shadow-card);margin-bottom:12px;}
+.card-title{font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border-light);}
+.card-title .tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500;}
+.tag-media{background:var(--c-media);color:#fff;}.tag-exam{background:var(--c-exam);color:#fff;}.tag-health{background:var(--c-health);color:#fff;}.tag-finance{background:var(--c-finance);color:#fff;}
+
+/* 待办 */
+.todo-overview .progress-ring{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.todo-overview .ring-visual{width:64px;height:64px;position:relative;display:flex;align-items:center;justify-content:center;}
+.todo-overview .ring-visual svg{position:absolute;top:0;left:0;width:64px;height:64px;}
+.todo-overview .ring-visual .ring-text{font-size:14px;font-weight:700;z-index:2;}
+.todo-overview .ring-info{font-size:12px;color:var(--text-secondary);}
+.todo-overview .ring-info strong{color:var(--c-media);}
+.todo-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--border-light);font-size:13px;cursor:pointer;min-height:40px;}
+.todo-item:last-child{border-bottom:none;}
+.todo-item .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--border-medium);display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;background:var(--bg-card);}
+.todo-item.done .check{background:var(--c-success);border-color:var(--c-success);color:#fff;font-size:12px;}
+.todo-item.done .text{color:var(--text-muted);}
+.todo-item .text{flex:1;}
+.todo-item .module-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-media{background:var(--c-media);}.dot-exam{background:var(--c-exam);}.dot-health{background:var(--c-health);}.dot-finance{background:var(--c-finance);}
+
+/* 学习打卡项 */
+.study-day{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px dashed var(--border-light);min-height:38px;}
+.study-day:last-child{border-bottom:none;}
+.study-day .day-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border-medium);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;flex-shrink:0;background:var(--bg-card);}
+.study-day.done .day-check{background:var(--c-success);border-color:var(--c-success);color:#fff;font-size:11px;}
+.study-day .day-content{flex:1;}
+.study-day .day-hours{font-size:11px;color:var(--text-muted);}
+
+/* 补剂项 */
+.supp-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--border-light);font-size:12px;min-height:36px;}
+.supp-item:last-child{border-bottom:none;}
+.supp-item .supp-check{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--border-medium);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;flex-shrink:0;background:var(--bg-card);}
+.supp-item.done .supp-check{background:var(--c-success);border-color:var(--c-success);color:#fff;font-size:10px;}
+.supp-item .supp-name{flex:1;}
+.supp-item .supp-time{font-size:10px;color:var(--text-muted);}
+
+/* 模块 */
+.module-header{font-size:17px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:2px solid var(--border-light);}
+.module-header .emoji{font-size:22px;}
+.module-section-media{border-left:4px solid var(--c-media);}
+.module-section-exam{border-left:4px solid var(--c-exam);}
+.module-section-health{border-left:4px solid var(--c-health);}
+.module-section-finance{border-left:4px solid var(--c-finance);}
+
+/* 通用面板 */
+.idea-bank{background:var(--bg-card-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);padding:14px;margin-bottom:12px;}
+.idea-bank-title{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.idea-entry{padding:5px 0;border-bottom:1px dashed var(--border-light);font-size:12px;display:flex;align-items:center;gap:6px;}
+.idea-entry:last-child{border-bottom:none;}
+.idea-entry .idea-text{flex:1;color:var(--text-secondary);}
+.idea-entry .idea-date{font-size:10px;color:var(--text-muted);}
+.add-btn{background:var(--c-media);color:#fff;border:none;padding:8px 14px;border-radius:var(--radius-xs);font-size:13px;cursor:pointer;min-height:38px;}
+.add-btn:active{opacity:0.85;}
+.add-btn-health{background:var(--c-health);}
+.add-btn-finance{background:var(--c-finance);}
+.add-btn-exam{background:var(--c-exam);}
+.add-btn-plain{background:var(--border-medium);color:var(--text-primary);}
+
+.content-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.stat-box{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;border:1px solid var(--border-light);}
+.stat-box .stat-val{font-size:18px;font-weight:700;color:var(--c-media);}
+.stat-box .stat-label{font-size:10px;color:var(--text-muted);margin-top:1px;}
+
+.exam-banner{background:linear-gradient(135deg,var(--c-exam-bg),var(--c-exam));border-radius:var(--radius-sm);padding:14px 16px;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.exam-banner .exam-date{font-size:13px;font-weight:600;}
+.exam-banner .exam-days{font-size:28px;font-weight:800;text-align:center;}
+.exam-banner .exam-days small{font-size:12px;font-weight:500;}
+
+.subject-card{background:var(--bg-card-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);padding:14px;margin-bottom:12px;}
+.subject-card .subject-name{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+
+.tab-group{display:flex;gap:4px;margin-bottom:8px;background:var(--bg-page);border-radius:var(--radius-xs);padding:3px;}
+.tab-btn{padding:5px 12px;border-radius:var(--radius-xs);font-size:12px;cursor:pointer;background:transparent;color:var(--text-secondary);border:none;min-height:32px;}
+.tab-btn.active{background:var(--bg-card);color:var(--text-primary);font-weight:600;box-shadow:var(--shadow-card);}
+.tab-content{display:none;}.tab-content.active{display:block;}
+
+.study-progress-bar{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;border:1px solid var(--border-light);}
+.progress-item{margin-bottom:8px;}
+.progress-item .progress-label{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;justify-content:space-between;}
+.progress-bar-bg{height:8px;background:var(--border-light);border-radius:4px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:4px;transition:width 0.5s;}
+.fill-exam{background:var(--c-exam);}.fill-health{background:var(--c-health);}
+
+/* 健康 */
+.health-dashboard{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.health-metric{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;border:1px solid var(--border-light);}
+.health-metric .metric-icon{font-size:20px;margin-bottom:1px;}
+.health-metric .metric-val{font-size:18px;font-weight:700;color:var(--c-health);}
+.health-metric .metric-label{font-size:10px;color:var(--text-muted);}
+.health-metric .metric-target{font-size:9px;color:var(--c-health);margin-top:1px;}
+
+.water-tracker{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;border:1px solid var(--border-light);}
+.water-tracker .water-title{font-size:13px;font-weight:600;margin-bottom:8px;}
+.water-cups{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;}
+.water-cup{width:36px;height:36px;border-radius:8px;border:2px solid var(--border-medium);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all 0.15s;background:var(--bg-card);}
+.water-cup.filled{background:var(--c-health-bg);border-color:var(--c-health);}
+.water-cup:active{transform:scale(0.88);}
+
+.supplement-reminder{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;border:1px solid var(--border-light);}
+.supplement-reminder .supp-title{font-size:13px;font-weight:600;margin-bottom:8px;}
+
+.diet-log{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;border:1px solid var(--border-light);}
+.diet-log .diet-title{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.diet-row{display:flex;align-items:center;gap:6px;padding:5px 0;font-size:12px;border-bottom:1px dashed var(--border-light);}
+.diet-row:last-child{border-bottom:none;}
+.diet-row .diet-meal{font-weight:600;width:40px;color:var(--text-secondary);}
+.diet-row .diet-content{flex:1;color:var(--text-secondary);}
+.diet-row .diet-tag{font-size:9px;padding:1px 4px;border-radius:3px;}
+.tag-green{background:var(--c-exam);color:#fff;}.tag-yellow{background:var(--c-health);color:#fff;}.tag-red{background:var(--c-finance);color:#fff;}
+
+.health-note-input{width:100%;background:var(--bg-input);border:1px solid var(--border-light);border-radius:var(--radius-xs);padding:8px;font-size:13px;color:var(--text-secondary);resize:none;min-height:60px;margin-bottom:6px;}
+.health-note-input:focus{outline:1px solid var(--c-health);}
+
+.health-warning-box{background:var(--c-health-bg);border-radius:var(--radius-sm);border:1px solid var(--border-light);border-left:4px solid var(--c-health);padding:14px;margin-bottom:12px;}
+.health-warning-box .warn-title{font-size:13px;font-weight:600;margin-bottom:6px;}
+.health-warning-box .warn-content{font-size:12px;color:var(--text-secondary);line-height:1.7;}
+
+/* 体重曲线 */
+.weight-card{background:var(--bg-card-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);padding:14px;margin-bottom:12px;}
+.weight-card .weight-title{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.weight-input-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
+.weight-input-row input{flex:1;padding:7px 8px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);color:var(--text-primary);min-height:36px;}
+.weight-input-row input:focus{outline:1px solid var(--c-health);}
+.weight-chart{width:100%;height:140px;background:var(--bg-card);border-radius:var(--radius-xs);border:1px solid var(--border-light);margin-bottom:8px;}
+
+/* 体重日历 */
+.weight-calendar{background:var(--bg-card-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);padding:14px;margin-bottom:12px;}
+.weight-calendar .wcal-header{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.weight-calendar .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.weight-calendar .cal-weekday{text-align:center;font-size:10px;color:var(--text-muted);padding:2px 0;font-weight:600;}
+.weight-calendar .wcal-day{text-align:center;font-size:10px;padding:3px 2px;border-radius:4px;min-height:38px;cursor:pointer;background:var(--bg-card);transition:background 0.15s;}
+.weight-calendar .wcal-day:active{background:var(--bg-hover);}
+.weight-calendar .wcal-day.has-weight{background:var(--c-health-bg);font-weight:600;}
+.weight-calendar .wcal-day.today{border:1.5px solid var(--c-health);}
+.weight-calendar .wcal-day .day-num{font-size:11px;color:var(--text-secondary);}
+.weight-calendar .wcal-day.has-weight .day-num{color:var(--text-primary);}
+.weight-calendar .wcal-day .day-weight{font-size:9px;color:var(--c-health);margin-top:1px;font-weight:700;}
+.weight-calendar .wcal-day.empty{background:transparent;cursor:default;}
+
+/* 记账 */
+.finance-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.finance-box{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:10px;text-align:center;border:1px solid var(--border-light);}
+.finance-box .fin-val{font-size:18px;font-weight:700;}
+.fin-income{color:var(--c-exam);}.fin-expense{color:var(--c-finance);}.fin-balance{color:var(--c-media);}
+.finance-box .fin-label{font-size:10px;color:var(--text-muted);}
+
+.add-record-form{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;border:1px solid var(--border-light);}
+.add-record-form .form-title{font-size:13px;font-weight:600;margin-bottom:8px;}
+.form-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+.form-row label{font-size:12px;color:var(--text-secondary);width:40px;flex-shrink:0;}
+.form-row input,.form-row select{flex:1;padding:7px 8px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);color:var(--text-primary);min-height:36px;}
+.form-row input:focus,.form-row select:focus{outline:1px solid var(--c-finance);}
+.form-btns{display:flex;gap:6px;margin-top:8px;}
+.btn-add{background:var(--c-finance);color:#fff;border:none;padding:9px 16px;border-radius:var(--radius-xs);font-size:13px;cursor:pointer;min-height:38px;}
+.btn-add:active{opacity:0.85;}
+.btn-reset{background:var(--border-light);color:var(--text-secondary);border:none;padding:9px 16px;border-radius:var(--radius-xs);font-size:13px;cursor:pointer;min-height:38px;}
+
+.expense-categories{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;border:1px solid var(--border-light);}
+.expense-categories .cat-title{font-size:13px;font-weight:600;margin-bottom:8px;}
+.cat-bar-item{display:flex;align-items:center;gap:6px;padding:5px 0;font-size:12px;}
+.cat-bar-item .cat-name{width:45px;flex-shrink:0;}
+.cat-bar-item .cat-bar-bg{flex:1;height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;}
+.cat-bar-item .cat-bar-fill{height:100%;border-radius:3px;transition:width 0.5s;}
+.cat-bar-item .cat-amount{width:60px;text-align:right;font-size:10px;color:var(--text-muted);flex-shrink:0;}
+
+.record-list{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;border:1px solid var(--border-light);}
+.record-list .list-title{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;}
+.record-entry{display:flex;align-items:center;gap:6px;padding:5px 0;font-size:12px;border-bottom:1px dashed var(--border-light);}
+.record-entry:last-child{border-bottom:none;}
+.record-entry .rec-type{font-size:9px;padding:1px 4px;border-radius:3px;}
+.rec-income-tag{background:var(--c-exam);color:#fff;}.rec-expense-tag{background:var(--c-finance);color:#fff;}
+.record-entry .rec-note{flex:1;color:var(--text-secondary);}
+.record-entry .rec-amount{font-weight:600;}
+.rec-amount-income{color:var(--c-exam);}.rec-amount-expense{color:var(--c-finance);}
+.record-entry .rec-date{font-size:9px;color:var(--text-muted);}
+.record-entry .rec-delete{font-size:11px;color:var(--text-muted);cursor:pointer;}
+
+/* 记账日历 */
+.finance-calendar{background:var(--bg-card-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);padding:14px;margin-bottom:12px;}
+.finance-calendar .cal-header{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.cal-nav{display:flex;gap:6px;}
+.cal-nav button{background:var(--border-light);border:none;padding:4px 10px;border-radius:var(--radius-xs);font-size:12px;cursor:pointer;color:var(--text-secondary);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-weekday{text-align:center;font-size:10px;color:var(--text-muted);padding:2px 0;font-weight:600;}
+.cal-day{text-align:center;font-size:10px;padding:3px 2px;border-radius:4px;min-height:32px;cursor:default;background:var(--bg-card);}
+.cal-day.has-expense{background:var(--c-finance-bg);font-weight:600;color:var(--c-finance);}
+.cal-day.today{border:1.5px solid var(--c-health);}
+.cal-day .day-num{font-size:11px;color:var(--text-secondary);}
+.cal-day.has-expense .day-num{color:var(--text-primary);}
+.cal-day .day-amount{font-size:9px;color:var(--c-finance);margin-top:1px;}
+.cal-day.empty{background:transparent;}
+
+/* 饼状图 */
+.finance-pie{background:var(--bg-card-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);padding:14px;margin-bottom:12px;}
+.finance-pie .pie-title{font-size:13px;font-weight:600;margin-bottom:8px;}
+.pie-chart-wrap{display:flex;align-items:center;gap:14px;}
+.pie-canvas{width:120px;height:120px;flex-shrink:0;}
+.pie-legend{flex:1;font-size:12px;}
+.pie-legend-item{display:flex;align-items:center;gap:6px;padding:3px 0;}
+.pie-legend-item .pie-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.pie-legend-item .pie-name{flex:1;color:var(--text-secondary);}
+.pie-legend-item .pie-val{font-weight:600;color:var(--text-primary);}
+
+/* 自媒体 */
+.inspiration-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
+.inspiration-card{background:var(--bg-card-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light);padding:12px;cursor:pointer;transition:transform 0.2s;}
+.inspiration-card:active{transform:scale(0.96);}
+.inspiration-card .topic{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;}
+.inspiration-card .meta{font-size:11px;color:var(--text-muted);display:flex;gap:6px;}
+.inspiration-card .hot-tag{font-size:10px;background:var(--c-media);color:#fff;padding:1px 5px;border-radius:4px;}
+.inspiration-card .desc{font-size:12px;color:var(--text-secondary);margin-top:4px;line-height:1.4;}
+
+/* 弹窗 */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(90,78,66,0.35);display:none;align-items:center;justify-content:center;z-index:300;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:var(--bg-card);border-radius:var(--radius);padding:18px;max-width:360px;width:92%;box-shadow:0 4px 20px rgba(90,78,66,0.1);max-height:80vh;overflow-y:auto;}
+.modal-box h3{font-size:15px;font-weight:700;margin-bottom:10px;}
+.modal-box input,.modal-box textarea{width:100%;padding:8px 10px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);color:var(--text-primary);margin-bottom:8px;}
+.modal-box textarea{min-height:60px;resize:none;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+
+/* 编辑任务弹窗 */
+.edit-task-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px dashed var(--border-light);}
+.edit-task-item:last-child{border-bottom:none;}
+.edit-task-item .edit-del{color:var(--c-finance);cursor:pointer;font-size:14px;flex-shrink:0;}
+.edit-task-item input{flex:1;padding:6px 8px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);color:var(--text-primary);}
+
+/* Toast */
+.toast{position:fixed;top:calc(var(--safe-top)+50px);left:50%;transform:translateX(-50%) translateY(-16px);background:var(--c-success);color:#fff;padding:8px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;z-index:400;opacity:0;transition:all 0.3s;box-shadow:var(--shadow-soft);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.reminder-pulse{animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+.content-scroll::-webkit-scrollbar{width:4px;}
+.content-scroll::-webkit-scrollbar-thumb{background:var(--border-medium);border-radius:2px;}
+
+@media(max-width:400px){:root{--nav-width:54px;}.nav-logo-icon{width:34px;height:34px;font-size:18px;border-radius:10px;}.nav-item{min-height:48px;padding:8px 0 4px;}.nav-item .nav-icon{font-size:18px;}.nav-item .nav-label{font-size:9px;}.nav-footer .countdown-num{font-size:14px;}}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- 左侧导航 -->
+  <nav class="nav-sidebar">
+    <div class="nav-logo"><div class="nav-logo-icon">📋</div></div>
+    <div class="nav-item nav-overview active" onclick="switchPage(0,this)"><span class="nav-icon">📊</span><span class="nav-label">总览</span></div>
+    <div class="nav-item nav-media" onclick="switchPage(1,this)"><span class="nav-icon">🎬</span><span class="nav-label">自媒体</span></div>
+    <div class="nav-item nav-exam" onclick="switchPage(2,this)"><span class="nav-icon">📚</span><span class="nav-label">备考</span></div>
+    <div class="nav-item nav-health" onclick="switchPage(3,this)"><span class="nav-icon">💚</span><span class="nav-label">健康</span></div>
+    <div class="nav-item nav-finance" onclick="switchPage(4,this)"><span class="nav-icon">💰</span><span class="nav-label">记账</span></div>
+    <div class="nav-footer"><div class="countdown-num" id="examDaysNav">--</div><div class="countdown-label">考试倒计时</div></div>
+  </nav>
+
+  <!-- 右侧内容 -->
+  <div class="content-panel">
+    <div class="content-header">
+      <div class="page-title" id="pageTitle">📊 全局总览</div>
+      <div class="page-date" id="pageDate"></div>
+    </div>
+    <div class="content-scroll" id="contentScroll">
+
+      <!-- 总览 -->
+      <div class="tab-page active" id="tabOverview">
+        <div class="card todo-overview"><div class="card-title">📋 今日待办 <span class="tag tag-media" style="font-size:9px">今日</span></div>
+          <div class="progress-ring"><div class="ring-visual" id="todoRing"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="#E0D4C8" stroke-width="7"/><circle id="ringArc" cx="32" cy="32" r="27" fill="none" stroke="#90AE80" stroke-width="7" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="169.6" transform="rotate(-90 32 32)"/></svg><span class="ring-text" id="ringText">0%</span></div><div class="ring-info">完成 <strong id="todoDoneCount">0</strong>/<strong id="todoTotalCount">0</strong> 项<br><span id="todoMotivation" style="font-size:10px;color:var(--text-muted)">加油开始吧！</span></div></div>
+          <div id="todoList"></div>
+        </div>
+        <div class="card" style="border-left:4px solid var(--c-health)"><div class="card-title">💚 健康速览</div>
+          <div class="health-dashboard"><div class="health-metric"><div class="metric-icon">💧</div><div class="metric-val" id="waterCurrentOv">0</div><div class="metric-label">饮水(ml)</div><div class="metric-target">目标2000</div></div><div class="health-metric"><div class="metric-icon">💊</div><div class="metric-val" id="suppDoneOv">0/4</div><div class="metric-label">补剂</div><div class="metric-target">鱼油·叶酸·VE·肌醇</div></div><div class="health-metric"><div class="metric-icon">⚖️</div><div class="metric-val" id="weightCurrentOv">--</div><div class="metric-label">体重(kg)</div><div class="metric-target" id="weightTargetOv">目标--</div></div></div>
+        </div>
+        <div class="exam-banner"><div><div class="exam-date">📚 中级会计职称考试</div><div style="font-size:10px;opacity:0.8">仅考经济法+财务管理</div></div><div class="exam-days"><div id="examDaysBig">--</div><small>天</small></div></div>
+        <div class="card" style="border-left:4px solid var(--c-exam)"><div class="card-title">📚 学习进度</div>
+          <div class="progress-item"><div class="progress-label">经济法 <span id="lawProgressTextOv">0%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill fill-exam" id="lawProgressBarOv" style="width:0%"></div></div></div>
+          <div class="progress-item"><div class="progress-label">财务管理 <span id="finProgressTextOv">0%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill fill-health" id="finProgressBarOv" style="width:0%"></div></div></div>
+        </div>
+        <div class="card" style="border-left:4px solid var(--c-finance)"><div class="card-title">💰 本月收支</div>
+          <div class="finance-summary"><div class="finance-box"><div class="fin-val fin-income" id="totalIncomeOv">¥0</div><div class="fin-label">收入</div></div><div class="finance-box"><div class="fin-val fin-expense" id="totalExpenseOv">¥0</div><div class="fin-label">支出</div></div><div class="finance-box"><div class="fin-val fin-balance" id="totalBalanceOv">¥0</div><div class="fin-label">结余</div></div></div>
+        </div>
+      </div>
+
+      <!-- 自媒体 -->
+      <div class="tab-page" id="tabMedia">
+        <div class="module-header module-section-media" style="padding-left:14px"><span class="emoji">🎬</span> 自媒体运营</div>
+        <div class="idea-bank"><div class="idea-bank-title">💡 灵感素材库 <button class="add-btn" onclick="openIdeaModal()">+添加</button></div><div id="ideaList"></div></div>
+        <div class="card" style="border-left:4px solid var(--c-media)"><div class="card-title">💡 今日创作 <span class="tag tag-media">打卡</span></div><div id="mediaDailyTasks"></div></div>
+        <div class="card" style="border-left:4px solid var(--c-media)"><div class="card-title">📅 本周计划</div><div id="mediaWeeklyTasks"></div></div>
+        <div class="card-title" style="border-bottom:1px solid var(--border-light);padding-bottom:8px;margin-bottom:10px;font-size:13px">🔥 爆款选题参考</div>
+        <div class="inspiration-grid" id="inspirationGrid"></div>
+        <div class="idea-bank"><div class="idea-bank-title">📊 爆款逻辑</div><div id="hotAnalysis" style="font-size:12px;color:var(--text-secondary);line-height:1.6"></div></div>
+      </div>
+
+      <!-- 备考 -->
+      <div class="tab-page" id="tabExam">
+        <div class="module-header module-section-exam" style="padding-left:14px"><span class="emoji">📚</span> 中级会计备考</div>
+        <div class="exam-banner"><div><div class="exam-date">2026年9月5日·中级会计</div><div style="font-size:10px;opacity:0.8">仅考经济法+财务管理</div></div><div class="exam-days"><div id="examDaysBig2">--</div><small>天</small></div></div>
+
+        <div class="subject-card">
+          <div class="subject-name">📖 经济法 <button class="add-btn add-btn-exam" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="openEditModal('law')">⚙编辑任务</button></div>
+          <div class="tab-group"><button class="tab-btn active" onclick="switchTab(this,'lawToday','law')">今日</button><button class="tab-btn" onclick="switchTab(this,'lawReview','law')">复习节点</button></div>
+          <div class="tab-content active" id="lawToday"></div>
+          <div class="tab-content" id="lawReview"></div>
+        </div>
+
+        <div class="subject-card">
+          <div class="subject-name">🔢 财务管理 <button class="add-btn add-btn-exam" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="openEditModal('fin')">⚙编辑任务</button></div>
+          <div class="tab-group"><button class="tab-btn active" onclick="switchTab(this,'finToday','fin')">今日</button><button class="tab-btn" onclick="switchTab(this,'finReview','fin')">复习节点</button></div>
+          <div class="tab-content active" id="finToday"></div>
+          <div class="tab-content" id="finReview"></div>
+        </div>
+
+        <div class="study-progress-bar"><div class="card-title" style="margin-bottom:8px">📈 备考进度</div>
+          <div class="progress-item"><div class="progress-label">经济法 <span id="lawProgressText">0%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill fill-exam" id="lawProgressBar" style="width:0%"></div></div></div>
+          <div class="progress-item"><div class="progress-label">财务管理 <span id="finProgressText">0%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill fill-health" id="finProgressBar" style="width:0%"></div></div></div>
+          <div class="progress-item"><div class="progress-label">总体 <span id="totalProgressText">0%</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" id="totalProgressBar" style="width:0%;background:var(--c-media)"></div></div></div>
+        </div>
+        <div class="idea-bank"><div class="idea-bank-title">✅ 打卡台账 <span id="examStreak" style="font-size:11px;color:var(--c-exam)">连续0天</span></div><div id="examCheckinLog" style="font-size:12px;color:var(--text-secondary)"></div></div>
+      </div>
+
+      <!-- 健康 -->
+      <div class="tab-page" id="tabHealth">
+        <div class="module-header module-section-health" style="padding-left:14px"><span class="emoji">💚</span> 减肥与备孕健康管理</div>
+        <div class="health-dashboard"><div class="health-metric"><div class="metric-icon">💧</div><div class="metric-val" id="waterCurrent">0</div><div class="metric-label">饮水(ml)</div><div class="metric-target">目标2000</div></div><div class="health-metric"><div class="metric-icon">⚖️</div><div class="metric-val" id="weightCurrent">--</div><div class="metric-label">体重(kg)</div><div class="metric-target" id="weightTarget">目标--</div></div><div class="health-metric"><div class="metric-icon">💊</div><div class="metric-val" id="suppDone">0/4</div><div class="metric-label">补剂</div><div class="metric-target">鱼油·叶酸·VE·肌醇</div></div></div>
+
+        <!-- 体重曲线图 -->
+        <div class="weight-card">
+          <div class="weight-title">⚖️ 体重趋势 <button class="add-btn add-btn-health" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="openWeightModal()">+记录体重</button></div>
+          <canvas class="weight-chart" id="weightChart"></canvas>
+        </div>
+
+        <div class="water-tracker"><div class="water-title">💧 饮水追踪 <span style="font-size:10px;color:var(--text-muted)">250ml×8=2000ml</span></div><div class="water-cups" id="waterCups"></div><div style="margin-top:6px;font-size:11px;color:var(--c-health)" id="waterPercent">0%</div></div>
+
+        <div class="supplement-reminder"><div class="supp-title">💊 补剂提醒 <button class="add-btn add-btn-health" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="openEditModal('supp')">⚙自定义</button></div><div id="supplementList"></div></div>
+
+        <!-- 健康每日打卡（用户自定义） -->
+        <div class="card" style="border-left:4px solid var(--c-health)"><div class="card-title">📝 每日健康打卡 <button class="add-btn add-btn-health" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="openEditModal('health')">⚙自定义</button></div><div id="healthDailyTasks"></div></div>
+
+        <div class="diet-log"><div class="diet-title">🥗 饮食记录 <button class="add-btn add-btn-health" onclick="openDietModal()">+添加</button></div><div id="dietList"></div></div>
+        <div class="idea-bank"><div class="idea-bank-title">📝 身体备注</div><textarea class="health-note-input" id="healthNote" placeholder="今日身体感受…"></textarea><button class="btn-add add-btn-health" onclick="saveHealthNote()">保存</button></div>
+        <div class="health-warning-box"><div class="warn-title">⚠️ 健康注意</div><div class="warn-content">🔸 胆囊小息肉+壁粗糙→<strong>严格控油</strong><br>🔸 胰岛素抵抗→<strong>严格控糖</strong>，低GI<br>🔸 备孕→补剂按时，规律作息<br>🔸 原则：<strong>少油少盐少糖</strong></div></div>
+
+        <!-- 体重日历（放最下面） -->
+        <div class="weight-calendar"><div class="wcal-header"><span id="wcalMonthTitle">本月</span><div style="display:flex;gap:6px"><button class="add-btn add-btn-health" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="openWeightModal()">+记录</button><button class="add-btn add-btn-plain" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="wcalToday()">本月</button></div></div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px">点击有体重的日期可修改/删除</div>
+          <div class="cal-grid" id="wcalGrid"></div>
+          <div style="margin-top:6px;display:flex;gap:4px" id="wcalNav">
+            <button style="flex:1;background:var(--border-light);border:none;padding:4px;border-radius:var(--radius-xs);font-size:11px;cursor:pointer;color:var(--text-secondary)" onclick="wcalPrev()">◀ 上月</button>
+            <button style="flex:1;background:var(--border-light);border:none;padding:4px;border-radius:var(--radius-xs);font-size:11px;cursor:pointer;color:var(--text-secondary)" onclick="wcalNext()">下月 ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 记账 -->
+      <div class="tab-page" id="tabFinance">
+        <div class="module-header module-section-finance" style="padding-left:14px"><span class="emoji">💰</span> 存钱记账</div>
+        <div class="finance-summary"><div class="finance-box"><div class="fin-val fin-income" id="totalIncome">¥0</div><div class="fin-label">收入</div></div><div class="finance-box"><div class="fin-val fin-expense" id="totalExpense">¥0</div><div class="fin-label">支出</div></div><div class="finance-box"><div class="fin-val fin-balance" id="totalBalance">¥0</div><div class="fin-label">结余</div></div></div>
+
+        <!-- 支出饼状图 -->
+        <div class="finance-pie"><div class="pie-title">📊 支出大类占比</div>
+          <div class="pie-chart-wrap">
+            <canvas class="pie-canvas" id="pieChart"></canvas>
+            <div class="pie-legend" id="pieLegend"></div>
+          </div>
+        </div>
+
+        <!-- 记账日历 -->
+        <div class="finance-calendar"><div class="cal-header"><span id="calMonthTitle">本月</span><div class="cal-nav"><button onclick="calPrev()">◀</button><button onclick="calNext()">▶</button><button onclick="calToday()">本月</button></div></div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+
+        <div class="add-record-form"><div class="form-title">📝 新增记录</div>
+          <div class="form-row"><label>类型</label><select id="recType"><option value="expense">支出</option><option value="income">收入</option></select></div>
+          <div class="form-row"><label>金额</label><input type="number" id="recAmount" placeholder="金额" min="0" step="0.01"></div>
+          <div class="form-row"><label>分类</label><select id="recCategory"><option value="餐饮">餐饮</option><option value="交通">交通</option><option value="购物">购物</option><option value="娱乐">娱乐</option><option value="医疗">医疗</option><option value="学习">学习</option><option value="居住">居住</option><option value="其他">其他</option></select></div>
+          <div class="form-row"><label>备注</label><input type="text" id="recNote" placeholder="备注"></div>
+          <div class="form-btns"><button class="btn-add" onclick="addRecord()">添加</button><button class="btn-reset" onclick="resetForm()">清空</button></div>
+        </div>
+        <div class="expense-categories"><div class="cat-title">📊 支出分类柱状</div><div id="categoryBars"></div></div>
+        <div class="record-list"><div class="list-title">📒 流水 <span style="font-size:10px;color:var(--text-muted)" id="recordCount">0条</span></div><div id="recordEntries"></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 灵感弹窗 -->
+<div class="modal-overlay" id="ideaModal"><div class="modal-box"><h3>💡 添加灵感</h3><input type="text" id="ideaTitle" placeholder="选题标题"><textarea id="ideaDesc" placeholder="描述…"></textarea><select id="ideaTag" style="width:100%;padding:8px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);margin-bottom:8px"><option value="选题灵感">选题灵感</option><option value="文案结构">文案结构</option><option value="爆款参考">爆款参考</option><option value="拍摄技巧">拍摄技巧</option></select><div class="modal-btns"><button class="btn-reset" onclick="closeIdeaModal()">取消</button><button class="btn-add" onclick="addIdea()">添加</button></div></div></div>
+
+<!-- 饮食弹窗 -->
+<div class="modal-overlay" id="dietModal"><div class="modal-box"><h3>🥗 饮食记录</h3><select id="dietMeal" style="width:100%;padding:8px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);margin-bottom:8px"><option value="早餐">早餐</option><option value="午餐">午餐</option><option value="晚餐">晚餐</option><option value="加餐">加餐</option></select><input type="text" id="dietContent" placeholder="吃了什么"><select id="dietLevel" style="width:100%;padding:8px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);margin-bottom:8px"><option value="green">✅达标</option><option value="yellow">⚠️部分超标</option><option value="red">❌明显超标</option></select><div class="modal-btns"><button class="btn-reset" onclick="closeDietModal()">取消</button><button class="btn-add add-btn-health" onclick="addDiet()">添加</button></div></div></div>
+
+<!-- 体重弹窗（支持选择日期补记/编辑/删除） -->
+<div class="modal-overlay" id="weightModal"><div class="modal-box"><h3 id="weightModalTitle">⚖️ 记录体重</h3><div class="form-row"><label>日期</label><input type="date" id="weightDateInput" style="flex:1"></div><div class="form-row"><label>体重</label><input type="number" id="weightInput" placeholder="输入体重(kg)" step="0.1" min="0"></div><div class="form-row"><label>目标</label><input type="number" id="weightTargetInput" placeholder="目标体重(kg)" step="0.1" min="0"></div><div class="modal-btns"><button class="btn-reset" id="weightDeleteBtn" style="display:none;background:var(--c-finance);color:#fff" onclick="deleteWeightFromModal()">删除</button><button class="btn-reset" onclick="closeWeightModal()">取消</button><button class="btn-add add-btn-health" onclick="saveWeight()">保存</button></div></div></div>
+
+<!-- 编辑任务弹窗 -->
+<div class="modal-overlay" id="editModal"><div class="modal-box"><h3 id="editModalTitle">⚙️ 编辑任务</h3><div id="editTaskList"></div><div style="margin-top:10px"><input type="text" id="newTaskInput" placeholder="输入新任务名称" style="margin-bottom:6px"><div class="form-row" style="margin-bottom:0"><label style="width:50px">时长</label><input type="text" id="newTaskHours" placeholder="如：2h（可选）" style="flex:1"></div><button class="add-btn add-btn-exam" style="margin-top:8px;width:100%" onclick="addNewTask()">+ 添加新任务</button></div><div class="modal-btns" style="margin-top:12px"><button class="btn-reset" onclick="closeEditModal()">取消</button><button class="btn-add add-btn-exam" onclick="saveEditTasks()">保存修改</button></div></div></div>
+
+<script>
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
+
+function showToast(msg,d=1800){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+
+const tabPages=['tabOverview','tabMedia','tabExam','tabHealth','tabFinance'];
+const pageTitles=['📊 全局总览','🎬 自媒体运营','📚 备考管理','💚 健康管理','💰 记账管理'];
+function switchPage(idx,el){
+  tabPages.forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById(tabPages[idx]).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pageTitle').textContent=pageTitles[idx];
+  document.getElementById('contentScroll').scrollTop=0;
+  // 立即重渲染当前Tab
+  if(idx===0)renderOverview();
+  if(idx===1)renderMediaTab();
+  if(idx===2)renderExamTab();
+  if(idx===3){
+    try{renderHealthTab();}catch(e){console.error('healthTab',e);}
+    setTimeout(()=>{try{renderWeightCalendar();}catch(e){console.error('wcal',e);}},100);
+    setTimeout(()=>{try{renderWeightCalendar();}catch(e){console.error('wcal2',e);}},300);
+  }
+  if(idx===4)renderFinance();
+}
+
+// ===== 数据 =====
+const STORE_KEY='workbuddy_v3';
+const EXAM_DATE=new Date('2026-09-05');
+function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||getDefault();}catch{return getDefault();}}
+function saveData(d){localStorage.setItem(STORE_KEY,JSON.stringify(d));}
+
+function getDefault(){
+  const t=getTodayStr();
+  return{
+    ideas:[{id:1,title:'入职第一天：被前辈叫错名字',desc:'口播视角讲述入职首日尴尬',tag:'选题灵感',date:t},{id:2,title:'职场新人第一次团建社死',desc:'社恐新人的团建噩梦',tag:'选题灵感',date:t},{id:3,title:'被领导说"你不够主动"怎么回',desc:'3种回复策略+真实案例',tag:'文案结构',date:t},{id:4,title:'报销单填错被财务追着改',desc:'报销流程避坑指南',tag:'爆款参考',date:t},{id:5,title:'3秒开头法：抛冲突+悬念',desc:'黄金3秒公式',tag:'文案结构',date:t}],
+    mediaChecks:{},
+    examChecks:{},
+    examStreak:0,
+    examCheckinLog:[],
+    // 自定义备考任务
+    lawTasks:['经济法·第三章公司法','经济法·第四章证券法','经济法·章节习题练习'],
+    lawHours:['2h','1.5h','1h'],
+    finTasks:['财务管理·第三章预算管理','财务管理·第四章筹资管理','财务管理·公式推导练习'],
+    finHours:['2h','1.5h','1h'],
+    // 自定义补剂
+    supps:['鱼油(Omega-3)','叶酸(0.4mg)','维生素E','肌醇(myo-inositol)'],
+    suppTimes:['早餐后','早餐后','午餐后','晚餐后'],
+    // 自定义健康打卡项
+    healthTasks:['少油少盐少糖打卡','控糖饮食执行','规律作息（早睡）','适度运动30分钟'],
+    // 水杯+体重+饮食+备注
+    waterCups:{},
+    supplementChecks:{},
+    dietRecords:{},
+    healthChecks:{},
+    healthNotes:{},
+    weightRecords:[],
+    weightTarget:null,
+    records:[],
+    version:'3.0'
+  };
+}
+
+function getTodayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+let DATA=loadData();
+const TODAY=getTodayStr();
+
+// 强制清除旧版数据，避免兼容性问题
+if(!DATA.supps || !DATA.healthTasks || !DATA.lawTasks || !DATA.finTasks || DATA.version !== '3.0'){
+  localStorage.removeItem(STORE_KEY);
+  DATA=getDefault();
+  saveData(DATA);
+}
+
+function initDay(){
+  // 兼容旧数据：确保自定义任务字段存在
+  if(!DATA.supps||DATA.supps.length===0){DATA.supps=['鱼油(Omega-3)','叶酸(0.4mg)','维生素E','肌醇(myo-inositol)'];DATA.suppTimes=['早餐后','早餐后','午餐后','晚餐后'];}
+  if(!DATA.healthTasks||DATA.healthTasks.length===0){DATA.healthTasks=['少油少盐少糖打卡','控糖饮食执行','规律作息（早睡）','适度运动30分钟'];}
+  if(!DATA.lawTasks||DATA.lawTasks.length===0){DATA.lawTasks=['经济法·第三章公司法','经济法·第四章证券法','经济法·章节习题练习'];DATA.lawHours=['2h','1.5h','1h'];}
+  if(!DATA.finTasks||DATA.finTasks.length===0){DATA.finTasks=['财务管理·第三章预算管理','财务管理·第四章筹资管理','财务管理·公式推导练习'];DATA.finHours=['2h','1.5h','1h'];}
+
+  if(!DATA.waterCups[TODAY])DATA.waterCups[TODAY]=[];
+  if(!DATA.supplementChecks[TODAY])DATA.supplementChecks[TODAY]={};
+  DATA.supps.forEach((s,i)=>{const k=`s${i}`;if(DATA.supplementChecks[TODAY][k]===undefined)DATA.supplementChecks[TODAY][k]=false;});
+  if(!DATA.dietRecords[TODAY])DATA.dietRecords[TODAY]=[];
+  if(!DATA.healthNotes[TODAY])DATA.healthNotes[TODAY]='';
+  if(!DATA.mediaChecks[TODAY])DATA.mediaChecks[TODAY]={};
+  if(!DATA.examChecks[TODAY])DATA.examChecks[TODAY]={};
+  if(!DATA.healthChecks[TODAY])DATA.healthChecks[TODAY]={};
+  saveData(DATA);
+}
+initDay();
+
+function updateDate(){const d=new Date();const w=['日','一','二','三','四','五','六'];document.getElementById('pageDate').textContent=`${d.getMonth()+1}/${d.getDate()} 周${w[d.getDay()]}`;const diff=Math.ceil((EXAM_DATE-d)/(1e3*60*60*24));const days=diff>0?diff:0;['examDaysNav','examDaysBig','examDaysBig2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=days;});}
+updateDate();
+
+// ===== 核心：即时反馈的打卡切换 =====
+// 点击打卡后立即重渲染当前整个Tab，保证视觉即时更新
+function toggleExamCheck(key){
+  const c=DATA.examChecks[TODAY]||{};
+  c[key]=!c[key];
+  DATA.examChecks[TODAY]=c;
+  saveData(DATA);
+  renderExamTab();  // 即时重渲染整个备考Tab
+  renderOverview(); // 同步更新总览
+  showToast(c[key]?'✅已完成':'取消');
+}
+
+function toggleSuppCheck(key){
+  const c=DATA.supplementChecks[TODAY]||{};
+  c[key]=!c[key];
+  DATA.supplementChecks[TODAY]=c;
+  saveData(DATA);
+  renderHealthTab();  // 即时重渲染整个健康Tab
+  renderOverview();
+  showToast(c[key]?'✅已服用':'取消');
+}
+
+function toggleHealthCheck(key){
+  const c=DATA.healthChecks[TODAY]||{};
+  c[key]=!c[key];
+  DATA.healthChecks[TODAY]=c;
+  saveData(DATA);
+  renderHealthTab();
+  renderOverview();
+  showToast(c[key]?'✅已完成':'取消');
+}
+
+function toggleMediaCheck(key){
+  const c=DATA.mediaChecks[TODAY]||{};
+  c[key]=!c[key];
+  DATA.mediaChecks[TODAY]=c;
+  saveData(DATA);
+  renderMediaTab();
+  renderOverview();
+  showToast(c[key]?'✅已完成':'取消');
+}
+
+// ===== 总览 =====
+function buildTodo(){
+  const todos=[];
+  // 自媒体：联动自媒体Tab的今日创作打卡（key: md1~md4）
+  const mediaDaily=[{text:'浏览爆款选题',key:'md1'},{text:'撰写1条文案',key:'md2'},{text:'拍摄录制素材',key:'md3'},{text:'发布1条短视频',key:'md4'}];
+  mediaDaily.forEach(t=>{todos.push({text:t.text,module:'media',key:t.key});});
+  // 备考：联动备考Tab的打卡
+  DATA.lawTasks.forEach((t,i)=>{todos.push({text:t,module:'exam',key:`law${i}`});});
+  DATA.finTasks.forEach((t,i)=>{todos.push({text:t,module:'exam',key:`fin${i}`});});
+  // 健康：联动健康Tab的打卡
+  todos.push({text:'饮水达标2000ml',module:'health',key:'todo_water'});
+  DATA.supps.forEach((s,i)=>{todos.push({text:s+'服用',module:'health',key:`todo_s${i}`});});
+  DATA.healthTasks.forEach((t,i)=>{todos.push({text:t,module:'health',key:`h${i}`});});
+  // 记账：联动记账Tab
+  todos.push({text:'记录今日收支',module:'finance',key:'todo_fin'});
+
+  const mc=DATA.mediaChecks[TODAY]||{},ec=DATA.examChecks[TODAY]||{},hc=DATA.healthChecks[TODAY]||{},sc=DATA.supplementChecks[TODAY]||{};
+  const dm={media:'dot-media',exam:'dot-exam',health:'dot-health',finance:'dot-finance'};
+  let done=0,h='';
+  todos.forEach(t=>{
+    let ck=false;
+    if(t.module==='media')ck=mc[t.key]||false;
+    else if(t.module==='exam')ck=ec[t.key]||false;
+    else if(t.module==='health'){
+      if(t.key==='todo_water'){ck=(DATA.waterCups[TODAY]||[]).length>=8;}
+      else if(t.key.startsWith('todo_s')){ck=sc[t.key.replace('todo_','')]||false;}
+      else ck=hc[t.key]||false;
+    }
+    else if(t.module==='finance'){
+      ck=(DATA.records||[]).some(r=>r.date===TODAY);
+    }
+    if(ck)done++;
+    h+=`<div class="todo-item ${ck?'done':''}" style="cursor:default"><div class="check">${ck?'✓':''}</div><div class="text">${t.text}</div><div class="module-dot ${dm[t.module]}"></div></div>`;
+  });
+  document.getElementById('todoList').innerHTML=h;
+  document.getElementById('todoDoneCount').textContent=done;document.getElementById('todoTotalCount').textContent=todos.length;
+  const pct=Math.round(done/todos.length*100);
+  // SVG环形进度条
+  const circumference=2*Math.PI*27; // ~169.6
+  const offset=circumference*(1-pct/100);
+  const arc=document.getElementById('ringArc');
+  arc.setAttribute('stroke-dashoffset',offset);
+  // 进度条颜色：全部绿色系，0%灰色起步，越完成越绿
+  const ringColor=pct>=80?'#7A9E6F':pct>=50?'#90AE80':pct>0?'#A5C0A0':'#D0C4B4';
+  arc.setAttribute('stroke',ringColor);
+  const textColor=pct>=80?'#7A9E6F':pct>=50?'#90AE80':pct>0?'#A5C0A0':'#7A6E60';
+  document.getElementById('ringText').textContent=pct+'%';
+  document.getElementById('ringText').style.color=textColor;
+  const m=['加油开始！','进行中…','过半了！','快完成！','太棒了！','✅全部完成！'];
+  document.getElementById('todoMotivation').textContent=m[pct===100?5:pct>=80?4:pct>=50?3:pct>0?1:0];
+}
+
+function toggleTodoItem(key,mod){
+  if(mod==='media'){toggleMediaCheck(key);}
+  else if(mod==='exam'){toggleExamCheck(key);}
+  else if(mod==='health'){
+    if(key==='todo_water'){showToast('请在健康页面打卡饮水');switchPage(3,document.querySelectorAll('.nav-item')[3]);return;}
+    if(key.startsWith('todo_s')){toggleSuppCheck(key.replace('todo_',''));}
+    else toggleHealthCheck(key);
+  }
+  else toggleMediaCheck(key);
+}
+
+function renderOverview(){
+  buildTodo();
+  const cups=DATA.waterCups[TODAY]||[];
+  document.getElementById('waterCurrentOv').textContent=cups.length*250;
+  const sc=DATA.supplementChecks[TODAY]||{};
+  let sd=0;DATA.supps.forEach((s,i)=>{if(sc[`s${i}`])sd++;});
+  document.getElementById('suppDoneOv').textContent=`${sd}/${DATA.supps.length}`;
+  if(DATA.weightRecords&&DATA.weightRecords.length>0){const l=DATA.weightRecords[DATA.weightRecords.length-1];document.getElementById('weightCurrentOv').textContent=l.weight;document.getElementById('weightTargetOv').textContent=`目标${DATA.weightTarget||'--'}kg`;}
+  else{document.getElementById('weightCurrentOv').textContent='--';document.getElementById('weightTargetOv').textContent='目标--kg';}
+  const ec=DATA.examChecks[TODAY]||{};
+  const lawD=DATA.lawTasks.filter((_,i)=>ec[`law${i}`]).length;
+  const finD=DATA.finTasks.filter((_,i)=>ec[`fin${i}`]).length;
+  const lp=Math.round(lawD/DATA.lawTasks.length*100);
+  const fp=Math.round(finD/DATA.finTasks.length*100);
+  document.getElementById('lawProgressBarOv').style.width=lp+'%';document.getElementById('lawProgressTextOv').textContent=lp+'%';
+  document.getElementById('finProgressBarOv').style.width=fp+'%';document.getElementById('finProgressTextOv').textContent=fp+'%';
+  const recs=DATA.records||[];const m=TODAY.substring(0,7);let ti=0,te=0;
+  recs.filter(r=>r.date.startsWith(m)).forEach(r=>{if(r.type==='income')ti+=r.amount;else te+=r.amount;});
+  document.getElementById('totalIncomeOv').textContent=`¥${ti.toFixed(0)}`;
+  document.getElementById('totalExpenseOv').textContent=`¥${te.toFixed(0)}`;
+  document.getElementById('totalBalanceOv').textContent=`¥${(ti-te).toFixed(0)}`;
+}
+
+// ===== 自媒体 =====
+const mediaDaily=[{text:'浏览爆款选题',key:'md1'},{text:'撰写1条文案',key:'md2'},{text:'拍摄录制素材',key:'md3'},{text:'发布1条短视频',key:'md4'}];
+const mediaWeekly=[{text:'本周发布≥3条',key:'mw1'},{text:'整理灵感素材库',key:'mw2'},{text:'分析数据表现',key:'mw3'},{text:'规划下周选题',key:'mw4'}];
+
+function renderMediaTab(){
+  const c=DATA.mediaChecks[TODAY]||{};
+  let h='';mediaDaily.forEach(t=>{h+=`<div class="study-day ${c[t.key]?'done':''}" onclick="toggleMediaCheck('${t.key}')"><span class="day-check">${c[t.key]?'✓':''}</span><span class="day-content">${t.text}</span></div>`;});
+  document.getElementById('mediaDailyTasks').innerHTML=h;
+  h='';mediaWeekly.forEach(t=>{h+=`<div class="study-day ${c[t.key]?'done':''}" onclick="toggleMediaCheck('${t.key}')"><span class="day-check">${c[t.key]?'✓':''}</span><span class="day-content">${t.text}</span></div>`;});
+  document.getElementById('mediaWeeklyTasks').innerHTML=h;
+  renderIdeaList();renderInspiration();renderHotAnalysis();
+}
+
+function renderIdeaList(){const ideas=DATA.ideas||[];let h='';ideas.slice().reverse().forEach(i=>{const tc={'选题灵感':'tag-media','文案结构':'tag-exam','爆款参考':'tag-health','拍摄技巧':'tag-finance'}[i.tag]||'tag-media';h+=`<div class="idea-entry"><span class="hot-tag ${tc}">${i.tag}</span><span class="idea-text">${i.title}</span><span class="idea-date">${i.date}</span></div>`;});if(!ideas.length)h='<div style="font-size:12px;color:var(--text-muted)">暂无灵感</div>';document.getElementById('ideaList').innerHTML=h;}
+function openIdeaModal(){document.getElementById('ideaModal').classList.add('show');}
+function closeIdeaModal(){document.getElementById('ideaModal').classList.remove('show');}
+function addIdea(){const t=document.getElementById('ideaTitle').value.trim(),d=document.getElementById('ideaDesc').value.trim(),g=document.getElementById('ideaTag').value;if(!t)return;DATA.ideas.push({id:Date.now(),title:t,desc:d,tag:g,date:TODAY});saveData(DATA);renderIdeaList();closeIdeaModal();showToast('灵感已添加 ✓');document.getElementById('ideaTitle').value='';document.getElementById('ideaDesc').value='';}
+
+const hotTopics=[{topic:'入职第一周踩坑合集',meta:{l:'5.2w',f:'+3200'},hot:'🔥热门',desc:'盘点7天踩坑5个+正确做法',search:'入职第一周踩坑合集 职场新人'},{topic:'领导说"你太年轻了"怎么回',meta:{l:'3.8w',f:'+1800'},hot:'🔥热门',desc:'3种回复+真实案例',search:'领导说你太年轻了 职场回复'},{topic:'第一次被客户怼哭了',meta:{l:'6.7w',f:'+4500'},hot:'🔥爆款',desc:'真实故事+情绪共鸣+反转',search:'第一次被客户怼哭了 职场新人'},{topic:'职场社恐自救指南',meta:{l:'2.9w',f:'+1500'},hot:'🔥热门',desc:'5个渐进社交策略',search:'职场社恐自救 职场新人'},{topic:'报销填错3次被财务拉黑',meta:{l:'4.5w',f:'+2800'},hot:'🔥热门',desc:'搞笑+干货+报销模板',search:'报销填错 职场新人'},{topic:'如何快速融入团队',meta:{l:'4.1w',f:'+2400'},hot:'🔥热门',desc:'5个实用技巧',search:'职场新人融入团队'}];
+function renderInspiration(){let h='';hotTopics.forEach(t=>{
+  const douyinUrl=`https://www.douyin.com/search/${encodeURIComponent(t.search)}`;
+  const xhsUrl=`https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(t.search)}`;
+  h+=`<div class="inspiration-card"><div class="topic">${t.topic}<span class="hot-tag">${t.hot}</span></div><div class="meta">❤️${t.meta.l}·📈${t.meta.f}</div><div class="desc">${t.desc}</div><div style="margin-top:6px;display:flex;gap:6px"><a href="${douyinUrl}" target="_blank" style="font-size:10px;padding:2px 6px;border-radius:4px;background:#111;color:#fff;text-decoration:none">抖音搜索</a><a href="${xhsUrl}" target="_blank" style="font-size:10px;padding:2px 6px;border-radius:4px;background:#ff2442;color:#fff;text-decoration:none">小红书搜索</a></div></div>`;});document.getElementById('inspirationGrid').innerHTML=h;}
+function renderHotAnalysis(){document.getElementById('hotAnalysis').innerHTML=`<strong>🔥 爆款共性：</strong><br>1️⃣ 情绪优先：委屈/社死开场→反转结尾<br>2️⃣ 数字结构："5个踩坑""3种回复"<br>3️⃣ 真实感："第一次""入职第一周"<br>4️⃣ 实用价值：结尾附清单/模板<br>5️⃣ 精准人群：0-1年职场新人<br><br><strong>📝 创作节奏：</strong><br>每周3条：1情绪共鸣+1干货技巧+1反转故事`;}
+
+// ===== 备考 =====
+const lawReview=[{text:'第1-2章法律基础',d:'7月底'},{text:'第3章公司法(重点)',d:'8月1-7日'},{text:'第4章证券法(重点)',d:'8月8-14日'},{text:'第5-6章合同法',d:'8月15-21日'},{text:'全科模拟冲刺',d:'8月22-31日'},{text:'考前错题复盘',d:'9月2-4日'}];
+const finReview=[{text:'第1-2章财务管理基础',d:'7月底'},{text:'第3章预算管理',d:'8月1-7日'},{text:'第4章筹资管理(重点)',d:'8月8-14日'},{text:'第5章投资管理',d:'8月15-21日'},{text:'第6-7章营运·分配',d:'8月22-28日'},{text:'全科模拟冲刺',d:'8月29-9月3日'}];
+
+function renderExamTab(){
+  const c=DATA.examChecks[TODAY]||{};
+  // 经济法今日
+  let lh='';
+  DATA.lawTasks.forEach((t,i)=>{const k=`law${i}`;const ck=c[k]||false;lh+=`<div class="study-day ${ck?'done':''}" onclick="toggleExamCheck('${k}')"><span class="day-check">${ck?'✓':''}</span><span class="day-content">${t}</span><span class="day-hours">${DATA.lawHours[i]||''}</span></div>`;});
+  document.getElementById('lawToday').innerHTML=lh;
+  // 财务管理今日
+  let fh='';
+  DATA.finTasks.forEach((t,i)=>{const k=`fin${i}`;const ck=c[k]||false;fh+=`<div class="study-day ${ck?'done':''}" onclick="toggleExamCheck('${k}')"><span class="day-check">${ck?'✓':''}</span><span class="day-content">${t}</span><span class="day-hours">${DATA.finHours[i]||''}</span></div>`;});
+  document.getElementById('finToday').innerHTML=fh;
+  // 复习节点
+  lh='';lawReview.forEach(n=>{lh+=`<div class="study-day"><span style="font-size:10px;color:var(--c-exam)">📅</span><span class="day-content">${n.text}</span><span class="day-hours">${n.d}</span></div>`;});document.getElementById('lawReview').innerHTML=lh;
+  fh='';finReview.forEach(n=>{fh+=`<div class="study-day"><span style="font-size:10px;color:var(--c-health)">📅</span><span class="day-content">${n.text}</span><span class="day-hours">${n.d}</span></div>`;});document.getElementById('finReview').innerHTML=fh;
+  // 进度
+  const lawD=DATA.lawTasks.filter((_,i)=>c[`law${i}`]).length;
+  const finD=DATA.finTasks.filter((_,i)=>c[`fin${i}`]).length;
+  const lp=Math.round(lawD/DATA.lawTasks.length*100);
+  const fp=Math.round(finD/DATA.finTasks.length*100);
+  const tp=Math.round((lawD+finD)/(DATA.lawTasks.length+DATA.finTasks.length)*100);
+  document.getElementById('lawProgressBar').style.width=lp+'%';document.getElementById('lawProgressText').textContent=lp+'%';
+  document.getElementById('finProgressBar').style.width=fp+'%';document.getElementById('finProgressText').textContent=fp+'%';
+  document.getElementById('totalProgressBar').style.width=tp+'%';document.getElementById('totalProgressText').textContent=tp+'%';
+  // 打卡台账
+  document.getElementById('examStreak').textContent=`连续${DATA.examStreak||0}天`;
+  let logH='';(DATA.examCheckinLog||[]).slice(-7).reverse().forEach(l=>{logH+=`<div style="padding:3px 0;border-bottom:1px dashed var(--border-light);font-size:11px">✅${l.date} 经济法${l.lawDone}项·财务管理${l.finDone}项</div>`;});
+  if(!logH)logH='<div style="font-size:11px;color:var(--text-muted)">暂无记录</div>';
+  document.getElementById('examCheckinLog').innerHTML=logH;
+}
+
+function switchTab(btn,id,g){const p=btn.closest('.subject-card');p.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');p.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+// ===== 编辑任务弹窗 =====
+let editingType=null; // 'law','fin','supp','health'
+function openEditModal(type){
+  editingType=type;
+  const titles={law:'⚙️ 编辑经济法任务',fin:'⚙️ 编辑财务管理任务',supp:'⚙️ 编辑补剂列表',health:'⚙️ 编辑健康打卡项'};
+  document.getElementById('editModalTitle').textContent=titles[type]||'⚙️ 编辑任务';
+  let items=[];
+  if(type==='law')items=DATA.lawTasks.map((t,i)=>({name:t,extra:DATA.lawHours[i]||''}));
+  if(type==='fin')items=DATA.finTasks.map((t,i)=>({name:t,extra:DATA.finHours[i]||''}));
+  if(type==='supp')items=DATA.supps.map((t,i)=>({name:t,extra:DATA.suppTimes[i]||''}));
+  if(type==='health')items=DATA.healthTasks.map(t=>({name:t,extra:''}));
+  let h='';
+  items.forEach((item,i)=>{
+    h+=`<div class="edit-task-item"><span class="edit-del" onclick="removeEditItem(${i})">✕</span><input type="text" value="${item.name}" id="editName${i}">`;
+    if(type==='law'||type==='fin'||type==='supp')h+=`<input type="text" value="${item.extra}" id="editExtra${i}" placeholder="${type==='supp'?'服用时间':'时长'}" style="width:60px;flex:none">`;
+    h+=`</div>`;
+  });
+  document.getElementById('editTaskList').innerHTML=h;
+  document.getElementById('newTaskInput').value='';
+  document.getElementById('newTaskHours').value='';
+  document.getElementById('editModal').classList.add('show');
+}
+function closeEditModal(){document.getElementById('editModal').classList.remove('show');editingType=null;}
+
+function removeEditItem(idx){
+  // 直接从DOM删除该行
+  const items=document.querySelectorAll('.edit-task-item');
+  if(items[idx])items[idx].remove();
+}
+
+function addNewTask(){
+  const name=document.getElementById('newTaskInput').value.trim();
+  const extra=document.getElementById('newTaskHours').value.trim();
+  if(!name)return;
+  const list=document.getElementById('editTaskList');
+  const i=list.children.length;
+  let html=`<div class="edit-task-item"><span class="edit-del" onclick="removeEditItem(${i})">✕</span><input type="text" value="${name}" id="editName${i}">`;
+  if(editingType==='law'||editingType==='fin'||editingType==='supp')html+=`<input type="text" value="${extra}" id="editExtra${i}" placeholder="${editingType==='supp'?'服用时间':'时长'}" style="width:60px;flex:none">`;
+  html+=`</div>`;
+  list.insertAdjacentHTML('beforeend',html);
+  document.getElementById('newTaskInput').value='';
+  document.getElementById('newTaskHours').value='';
+}
+
+function saveEditTasks(){
+  const names=[],extras=[];
+  document.querySelectorAll('.edit-task-item').forEach(item=>{
+    const nameInput=item.querySelector('input[type="text"]');
+    const extraInput=item.querySelectorAll('input[type="text"]')[1];
+    if(nameInput&&nameInput.value.trim()){
+      names.push(nameInput.value.trim());
+      extras.push(extraInput?extraInput.value.trim():'');
+    }
+  });
+  if(editingType==='law'){DATA.lawTasks=names;DATA.lawHours=extras;}
+  if(editingType==='fin'){DATA.finTasks=names;DATA.finHours=extras;}
+  if(editingType==='supp'){DATA.supps=names;DATA.suppTimes=extras;initDay();}
+  if(editingType==='health'){DATA.healthTasks=names;}
+  saveData(DATA);
+  closeEditModal();
+  if(editingType==='law'||editingType==='fin'){renderExamTab();renderOverview();}
+  if(editingType==='supp'||editingType==='health'){renderHealthTab();renderOverview();}
+  showToast('任务已更新 ✓');
+}
+
+// ===== 健康 =====
+function renderHealthTab(){
+  try{
+  // 饮水
+  const cups=DATA.waterCups[TODAY]||[];
+  let h='';for(let i=0;i<8;i++){h+=`<div class="water-cup ${cups.includes(i)?'filled':''}" onclick="toggleWater(${i})">💧</div>`;}
+  document.getElementById('waterCups').innerHTML=h;
+  const ml=cups.length*250;
+  document.getElementById('waterCurrent').textContent=ml;
+  const pct=Math.round(cups.length/8*100);
+  document.getElementById('waterPercent').textContent=`已完成${pct}%${ml>=2000?' 🎉达标！':''}`;
+  }catch(e){console.error('water render',e);}
+
+  try{
+  // 体重
+  if(DATA.weightRecords&&DATA.weightRecords.length>0){const l=DATA.weightRecords[DATA.weightRecords.length-1];document.getElementById('weightCurrent').textContent=l.weight;}
+  else document.getElementById('weightCurrent').textContent='--';
+  document.getElementById('weightTarget').textContent=`目标${DATA.weightTarget||'--'}kg`;
+  drawWeightChart();
+  renderWeightHistory();
+  renderWeightCalendar();
+  }catch(e){console.error('weight render',e);}
+
+  try{
+  // 补剂（动态从自定义列表渲染）
+  const sc=DATA.supplementChecks[TODAY]||{};
+  let sh='',dc=0;
+  (DATA.supps||[]).forEach((s,i)=>{const k=`s${i}`;const d=sc[k]||false;if(d)dc++;sh+=`<div class="supp-item ${d?'done':''}" onclick="toggleSuppCheck('${k}')"><span class="supp-check">${d?'✓':''}</span><span class="supp-name">${s}</span><span class="supp-time">${(DATA.suppTimes||[])[i]||''}${d?' ✅':''}</span></div>`;});
+  document.getElementById('supplementList').innerHTML=sh||'<div style="font-size:12px;color:var(--text-muted);padding:6px 0">暂无补剂，点击自定义添加</div>';
+  document.getElementById('suppDone').textContent=`${dc}/${(DATA.supps||[]).length}`;
+  }catch(e){console.error('supp render',e);}
+
+  try{
+  // 健康每日打卡
+  const hc=DATA.healthChecks[TODAY]||{};
+  let hh='';
+  (DATA.healthTasks||[]).forEach((t,i)=>{const k=`h${i}`;const d=hc[k]||false;hh+=`<div class="study-day ${d?'done':''}" onclick="toggleHealthCheck('${k}')"><span class="day-check">${d?'✓':''}</span><span class="day-content">${t}</span></div>`;});
+  document.getElementById('healthDailyTasks').innerHTML=hh||'<div style="font-size:12px;color:var(--text-muted);padding:6px 0">暂无打卡项，点击自定义添加</div>';
+  }catch(e){console.error('health daily render',e);}
+
+  try{
+  // 饮食
+  renderDiet();
+  loadHealthNote();
+  }catch(e){console.error('diet render',e);}
+}
+
+function toggleWater(idx){const cups=DATA.waterCups[TODAY]||[];const i=cups.indexOf(idx);if(i>=0)cups.splice(i,1);else cups.push(idx);DATA.waterCups[TODAY]=cups;saveData(DATA);renderHealthTab();renderOverview();showToast(`${cups.length*250}ml/2000ml`);}
+
+// 体重
+function openWeightModal(dateStr){
+  // 如果传入dateStr且有数据 → 编辑模式
+  const editDate=dateStr||TODAY;
+  const existing=(DATA.weightRecords||[]).find(r=>r.date===editDate);
+  document.getElementById('weightDateInput').value=editDate;
+  document.getElementById('weightInput').value=existing?existing.weight:'';
+  document.getElementById('weightTargetInput').value=DATA.weightTarget||'';
+  document.getElementById('weightModalTitle').textContent=existing?'⚖️ 编辑体重':'⚖️ 记录体重';
+  // 编辑模式显示删除按钮
+  document.getElementById('weightDeleteBtn').style.display=existing?'inline-block':'none';
+  document.getElementById('weightModal').classList.add('show');
+}
+function closeWeightModal(){document.getElementById('weightModal').classList.remove('show');}
+function saveWeight(){
+  const w=parseFloat(document.getElementById('weightInput').value);
+  const t=parseFloat(document.getElementById('weightTargetInput').value);
+  const d=document.getElementById('weightDateInput').value||TODAY;
+  if(!w||w<=0){showToast('请输入体重');return;}
+  const existing=DATA.weightRecords.findIndex(r=>r.date===d);
+  if(existing>=0)DATA.weightRecords[existing].weight=w;
+  else DATA.weightRecords.push({date:d,weight:w});
+  DATA.weightRecords.sort((a,b)=>a.date.localeCompare(b.date));
+  if(t&&t>0)DATA.weightTarget=t;
+  saveData(DATA);closeWeightModal();renderHealthTab();renderOverview();showToast('体重已保存 ✓');
+}
+function deleteWeightFromModal(){
+  const d=document.getElementById('weightDateInput').value;
+  DATA.weightRecords=DATA.weightRecords.filter(r=>r.date!==d);
+  saveData(DATA);closeWeightModal();renderHealthTab();renderOverview();showToast('已删除');
+}
+
+function drawWeightChart(){
+  const canvas=document.getElementById('weightChart');
+  const ctx=canvas.getContext('2d');
+  const style=getComputedStyle(document.documentElement);
+  const bgCard='#FFF9F4';
+  const borderLight='#E0D4C8';
+  const cHealth='#C8AE8C';
+  const textMuted='#B0A494';
+  const textSec='#7A6E60';
+  const cSuccess='#90AE80';
+
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*2;canvas.height=rect.height*2;
+  ctx.scale(2,2);
+  const w=rect.width,h=rect.height;
+  const records=DATA.weightRecords||[];
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle=bgCard;ctx.fillRect(0,0,w,h);
+
+  if(records.length<1){
+    ctx.fillStyle=textMuted;ctx.font='13px sans-serif';ctx.textAlign='center';
+    ctx.fillText('暂无体重数据，点击上方记录',w/2,h/2);
+    return;
+  }
+  if(records.length===1){
+    ctx.fillStyle=textSec;ctx.font='13px sans-serif';ctx.textAlign='center';
+    ctx.fillText(`${records[0].date.substring(5)}: ${records[0].weight}kg`,w/2,h/2-8);
+    ctx.fillStyle=textMuted;ctx.font='12px sans-serif';
+    ctx.fillText('记录更多数据后显示曲线',w/2,h/2+12);
+    return;
+  }
+
+  // 取最近14条数据
+  const data=records.slice(-14);
+  const weights=data.map(d=>d.weight);
+  const minW=Math.min(...weights)-0.5;
+  const maxW=Math.max(...weights)+0.5;
+  const range=maxW-minW||1;
+
+  // 布局：左侧Y轴留空，底部X轴留空
+  const padLeft=36,padRight=12,padTop=12,padBottom=22;
+  const chartW=w-padLeft-padRight,chartH=h-padTop-padBottom;
+
+  // Y轴刻度（体重）
+  ctx.strokeStyle=borderLight;ctx.lineWidth=0.5;
+  const ySteps=5;
+  for(let i=0;i<=ySteps;i++){
+    const y=padTop+chartH*i/ySteps;
+    const val=maxW-range*i/ySteps;
+    // 水平网格线
+    ctx.beginPath();ctx.moveTo(padLeft,y);ctx.lineTo(w-padRight,y);ctx.stroke();
+    // Y轴标签（体重数值）
+    ctx.fillStyle=textMuted;ctx.font='9px sans-serif';ctx.textAlign='right';
+    ctx.fillText(val.toFixed(1),padLeft-4,y+3);
+  }
+  // Y轴标题
+  ctx.fillStyle=textSec;ctx.font='9px sans-serif';ctx.textAlign='center';
+  ctx.fillText('kg',padLeft-16,padTop+chartH/2);
+
+  // 目标线（虚线）
+  if(DATA.weightTarget){
+    const targetY=padTop+chartH*(1-(DATA.weightTarget-minW)/range);
+    ctx.strokeStyle=cHealth;ctx.lineWidth=1;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(padLeft,targetY);ctx.lineTo(w-padRight,targetY);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=cHealth;ctx.font='9px sans-serif';ctx.textAlign='left';
+    ctx.fillText(`目标${DATA.weightTarget}`,padLeft+2,targetY-6);
+  }
+
+  // X轴日期标签 + 曲线
+  ctx.strokeStyle=cHealth;ctx.lineWidth=2;ctx.beginPath();
+  data.forEach((d,i)=>{
+    const x=padLeft+chartW*i/(data.length-1||1);
+    const y=padTop+chartH*(1-(d.weight-minW)/range);
+    // X轴日期标签
+    ctx.fillStyle=textSec;ctx.font='9px sans-serif';ctx.textAlign='center';
+    ctx.fillText(d.date.substring(5),x,h-padBottom+14);
+    // 绘制曲线点
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // 数据点圆点
+  data.forEach((d,i)=>{
+    const x=padLeft+chartW*i/(data.length-1||1);
+    const y=padTop+chartH*(1-(d.weight-minW)/range);
+    ctx.fillStyle=cHealth;ctx.beginPath();ctx.arc(x,y,3.5,0,2*Math.PI);ctx.fill();
+    // 点上方标注体重值（仅首尾和中间关键点）
+    if(i===0||i===data.length-1||data.length<=5){
+      ctx.fillStyle=textSec;ctx.font='9px sans-serif';ctx.textAlign='center';
+      ctx.fillText(d.weight.toFixed(1),x,y-7);
+    }
+  });
+}
+
+function renderWeightHistory(){
+  const records=DATA.weightRecords||[];
+  const recent=records.slice(-7).reverse();
+  let h='';
+  recent.forEach(r=>{
+    h+=`<span style="margin-right:6px;display:inline-flex;align-items:center;gap:2px">${r.date.substring(5)}: ${r.weight}kg <span style="color:var(--c-finance);cursor:pointer;font-size:11px" onclick="deleteWeight('${r.date}')">✕</span></span>`;
+  });
+  document.getElementById('weightHistory').innerHTML=h||'暂无记录';
+}
+
+function deleteWeight(date){
+  DATA.weightRecords=DATA.weightRecords.filter(r=>r.date!==date);
+  saveData(DATA);renderHealthTab();renderOverview();showToast('已删除');
+}
+
+// ===== 体重日历 =====
+let wcalViewMonth=TODAY.substring(0,7);
+function wcalPrev(){const [y,m]=wcalViewMonth.split('-').map(Number);const pm=m===1?12:m-1;const py=m===1?y-1:y;wcalViewMonth=`${py}-${String(pm).padStart(2,'0')}`;renderWeightCalendar();}
+function wcalNext(){const [y,m]=wcalViewMonth.split('-').map(Number);const nm=m===12?1:m+1;const ny=m===12?y+1:y;wcalViewMonth=`${ny}-${String(nm).padStart(2,'0')}`;renderWeightCalendar();}
+function wcalToday(){wcalViewMonth=TODAY.substring(0,7);renderWeightCalendar();}
+
+function renderWeightCalendar(){
+  const grid=document.getElementById('wcalGrid');
+  const title=document.getElementById('wcalMonthTitle');
+  if(!grid||!title){
+    console.warn('weight calendar elements not ready');
+    return;
+  }
+
+  const [cy,cm]=wcalViewMonth.split('-').map(Number);
+  title.textContent=`${cy}年${cm}月 体重日历`;
+
+  const firstDay=new Date(cy,cm-1,1).getDay();
+  const daysInMonth=new Date(cy,cm,0).getDate();
+  const weekdays=['日','一','二','三','四','五','六'];
+
+  // 当月体重记录映射
+  const weightMap={};
+  (DATA.weightRecords||[]).forEach(r=>{
+    if(r.date.startsWith(wcalViewMonth)){
+      const d=parseInt(r.date.substring(8));
+      weightMap[d]=r.weight;
+    }
+  });
+
+  let h='';
+  weekdays.forEach(w=>{h+=`<div class="cal-weekday">${w}</div>`;});
+  for(let i=0;i<firstDay;i++)h+=`<div class="wcal-day empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=String(d).padStart(2,'0');
+    const dateStr=`${wcalViewMonth}-${ds}`;
+    const hasW=weightMap[d]!==undefined;
+    const isToday=dateStr===TODAY;
+    h+=`<div class="wcal-day ${hasW?'has-weight':''} ${isToday?'today':''}" onclick="clickWeightDay('${dateStr}',${hasW?'true':'false'})">
+      <div class="day-num">${d}</div>
+      ${hasW?`<div class="day-weight">${weightMap[d]}kg</div>`:''}
+    </div>`;
+  }
+  grid.innerHTML=h;
+}
+
+function clickWeightDay(dateStr,hasWeight){
+  // 统一弹出编辑/录入对话框，预填已有数据
+  openWeightModal(dateStr);
+}
+
+// 饮食
+function renderDiet(){const r=DATA.dietRecords[TODAY]||[];let h='';r.forEach(d=>{const tc={green:'tag-green',yellow:'tag-yellow',red:'tag-red'}[d.level]||'tag-green';const tt={green:'✅达标',yellow:'⚠️超标',red:'❌超标'}[d.level]||'✅';h+=`<div class="diet-row"><span class="diet-meal">${d.meal}</span><span class="diet-content">${d.content}</span><span class="diet-tag ${tc}">${tt}</span></div>`;});if(!r.length)h='<div style="font-size:12px;color:var(--text-muted)">暂无记录</div>';document.getElementById('dietList').innerHTML=h;}
+function openDietModal(){document.getElementById('dietModal').classList.add('show');}
+function closeDietModal(){document.getElementById('dietModal').classList.remove('show');}
+function addDiet(){const meal=document.getElementById('dietMeal').value,content=document.getElementById('dietContent').value.trim(),level=document.getElementById('dietLevel').value;if(!content)return;DATA.dietRecords[TODAY].push({meal,content,level});saveData(DATA);renderDiet();closeDietModal();showToast('已记录 ✓');document.getElementById('dietContent').value='';}
+function loadHealthNote(){document.getElementById('healthNote').value=DATA.healthNotes[TODAY]||'';}
+function saveHealthNote(){DATA.healthNotes[TODAY]=document.getElementById('healthNote').value;saveData(DATA);showToast('备注已保存 ✓');}
+
+// ===== 记账 =====
+const catColors={'餐饮':'#D4A88C','交通':'#9AAC84','购物':'#C8AE8C','娱乐':'#BC8868','医疗':'#90AE80','学习':'#A5B88C','居住':'#C8A880','其他':'#D0C4B4'};
+const catColorsCSS={'餐饮':'var(--c-media)','交通':'var(--c-exam)','购物':'var(--c-health)','娱乐':'var(--c-finance)','医疗':'var(--c-success)','学习':'var(--c-exam)','居住':'var(--c-warning)','其他':'var(--border-medium)'};
+
+// 日历当前查看月份
+let calViewMonth=TODAY.substring(0,7); // 默认当前月
+function calPrev(){const [y,m]=calViewMonth.split('-').map(Number);const pm=m===1?12:m-1;const py=m===1?y-1:y;calViewMonth=`${py}-${String(pm).padStart(2,'0')}`;renderFinance();}
+function calNext(){const [y,m]=calViewMonth.split('-').map(Number);const nm=m===12?1:m+1;const ny=m===12?y+1:y;calViewMonth=`${ny}-${String(nm).padStart(2,'0')}`;renderFinance();}
+function calToday(){calViewMonth=TODAY.substring(0,7);renderFinance();}
+
+function renderFinance(){
+  const recs=DATA.records||[];
+  const m=calViewMonth;
+  const mr=recs.filter(r=>r.date.startsWith(m));
+  let ti=0,te=0;const catT={};
+  mr.forEach(r=>{if(r.type==='income')ti+=r.amount;else{te+=r.amount;catT[r.category]=(catT[r.category]||0)+r.amount;}});
+
+  document.getElementById('totalIncome').textContent=`¥${ti.toFixed(0)}`;
+  document.getElementById('totalExpense').textContent=`¥${te.toFixed(0)}`;
+  document.getElementById('totalBalance').textContent=`¥${(ti-te).toFixed(0)}`;
+
+  // 日历标题
+  const [cy,cm]=m.split('-');
+  document.getElementById('calMonthTitle').textContent=`${cy}年${parseInt(cm)}月`;
+
+  // 日历网格
+  const firstDay=new Date(parseInt(cy),parseInt(cm)-1,1).getDay(); // 0=周日
+  const daysInMonth=new Date(parseInt(cy),parseInt(cm),0).getDate();
+  const weekdays=['日','一','二','三','四','五','六'];
+  // 每日支出汇总
+  const dailyExpense={};
+  mr.filter(r=>r.type==='expense').forEach(r=>{const d=r.date.substring(8);dailyExpense[d]=(dailyExpense[d]||0)+r.amount;});
+
+  let calH='';
+  weekdays.forEach(w=>{calH+=`<div class="cal-weekday">${w}</div>`;});
+  // 空位填充
+  for(let i=0;i<firstDay;i++)calH+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=String(d).padStart(2,'0');
+    const dateStr=`${m}-${ds}`;
+    const hasExp=dailyExpense[ds];
+    const isToday=dateStr===TODAY;
+    calH+=`<div class="cal-day ${hasExp?'has-expense':''} ${isToday?'today':''}">
+      <div class="day-num">${d}</div>
+      ${hasExp?`<div class="day-amount">¥${hasExp.toFixed(0)}</div>`:''}
+    </div>`;
+  }
+  document.getElementById('calGrid').innerHTML=calH;
+
+  // 饼状图
+  drawPieChart(catT,te);
+
+  // 柱状图
+  const maxC=Math.max(...Object.values(catT),1);
+  let ch='';
+  Object.entries(catT).sort((a,b)=>b[1]-a[1]).forEach(([cat,amt])=>{
+    const p=Math.round(amt/maxC*100);
+    const c=catColorsCSS[cat]||'var(--border-medium)';
+    ch+=`<div class="cat-bar-item"><span class="cat-name">${cat}</span><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${p}%;background:${c}"></div></div><span class="cat-amount">¥${amt.toFixed(0)}</span></div>`;
+  });
+  if(!ch)ch='<div style="font-size:12px;color:var(--text-muted)">暂无数据</div>';
+  document.getElementById('categoryBars').innerHTML=ch;
+
+  // 流水
+  document.getElementById('recordCount').textContent=`${recs.length}条`;
+  let rh='';recs.slice().reverse().slice(0,15).forEach(r=>{
+    const tt=r.type==='income'?'rec-income-tag':'rec-expense-tag';
+    const tl=r.type==='income'?'收入':'支出';
+    const ac=r.type==='income'?'rec-amount-income':'rec-amount-expense';
+    const sg=r.type==='income'?'+':'-';
+    rh+=`<div class="record-entry"><span class="rec-type ${tt}">${tl}</span><span class="rec-note">${r.category}·${r.note||'--'}</span><span class="rec-amount ${ac}">${sg}¥${r.amount.toFixed(0)}</span><span class="rec-date">${r.date}</span><span class="rec-delete" onclick="deleteRecord(${r.id})">✕</span></div>`;
+  });
+  if(!rh)rh='<div style="font-size:12px;color:var(--text-muted)">暂无记录</div>';
+  document.getElementById('recordEntries').innerHTML=rh;
+}
+
+function drawPieChart(catT,total){
+  const canvas=document.getElementById('pieChart');
+  const ctx=canvas.getContext('2d');
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*2;canvas.height=rect.height*2;
+  ctx.scale(2,2);
+  const w=rect.width,h=rect.height;
+  const cx=w/2,cy=h/2,r=Math.min(w,h)/2-4;
+
+  ctx.clearRect(0,0,w,h);
+
+  const entries=Object.entries(catT).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length||total<=0){
+    ctx.fillStyle='#B0A494';ctx.font='13px sans-serif';ctx.textAlign='center';
+    ctx.fillText('暂无支出数据',cx,cy);
+    document.getElementById('pieLegend').innerHTML='';
+    return;
+  }
+
+  // 绘制饼图
+  let startAngle=-Math.PI/2;
+  entries.forEach(([cat,amt])=>{
+    const sliceAngle=2*Math.PI*amt/total;
+    const color=catColors[cat]||'#D0C4B4';
+    ctx.fillStyle=color;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startAngle,startAngle+sliceAngle);ctx.closePath();ctx.fill();
+    startAngle+=sliceAngle;
+  });
+
+  // 中间挖空（甜甜圈效果）
+  ctx.fillStyle='#FAF2EA';ctx.beginPath();ctx.arc(cx,cy,r*0.45,0,2*Math.PI);ctx.fill();
+  // 中心文字
+  ctx.fillStyle='#5A4E42';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(`¥${total.toFixed(0)}`,cx,cy-2);
+  ctx.fillStyle='#B0A494';ctx.font='9px sans-serif';ctx.fillText('总支出',cx,cy+10);
+
+  // 图例
+  let legendH='';
+  entries.forEach(([cat,amt])=>{
+    const pct=Math.round(amt/total*100);
+    const color=catColorsCSS[cat]||'var(--border-medium)';
+    legendH+=`<div class="pie-legend-item"><span class="pie-dot" style="background:${color}"></span><span class="pie-name">${cat} ${pct}%</span><span class="pie-val">¥${amt.toFixed(0)}</span></div>`;
+  });
+  document.getElementById('pieLegend').innerHTML=legendH;
+}
+function addRecord(){const type=document.getElementById('recType').value,amount=parseFloat(document.getElementById('recAmount').value),category=document.getElementById('recCategory').value,note=document.getElementById('recNote').value.trim();if(!amount||amount<=0){showToast('请输入金额');return;}DATA.records.push({id:Date.now(),type,amount,category,note,date:TODAY});saveData(DATA);renderFinance();renderOverview();resetForm();showToast('已添加 ✓');}
+function resetForm(){document.getElementById('recAmount').value='';document.getElementById('recNote').value='';}
+function deleteRecord(id){DATA.records=DATA.records.filter(r=>r.id!==id);saveData(DATA);renderFinance();renderOverview();showToast('已删除');}
+document.getElementById('recType').addEventListener('change',function(){const cs=document.getElementById('recCategory');if(this.value==='income')cs.innerHTML='<option value="工资">工资</option><option value="兼职">兼职</option><option value="理财">理财</option><option value="其他">其他</option>';else cs.innerHTML='<option value="餐饮">餐饮</option><option value="交通">交通</option><option value="购物">购物</option><option value="娱乐">娱乐</option><option value="医疗">医疗</option><option value="学习">学习</option><option value="居住">居住</option><option value="其他">其他</option>';});
+
+// ===== 初始渲染 =====
+function renderAll(){
+  try{renderOverview();}catch(e){console.error('renderOverview error',e);}
+  try{renderMediaTab();}catch(e){console.error('renderMediaTab error',e);}
+  try{renderExamTab();}catch(e){console.error('renderExamTab error',e);}
+  try{renderHealthTab();}catch(e){console.error('renderHealthTab error',e);}
+  try{renderFinance();}catch(e){console.error('renderFinance error',e);}
+  setTimeout(()=>{
+    try{renderWeightCalendar();}catch(e){console.error('renderWeightCalendar error',e);}
+  },200);
+}
+renderAll();
+
+// 备考连续打卡
+(function(){const y=new Date(Date.now()-864e5);const yS=`${y.getFullYear()}-${String(y.getMonth()+1).padStart(2,'0')}-${String(y.getDate()).padStart(2,'0')}`;const yc=DATA.examChecks[yS]||{};const ld=DATA.lawTasks.filter((_,i)=>yc[`law${i}`]).length;const fd=DATA.finTasks.filter((_,i)=>yc[`fin${i}`]).length;if(ld>0||fd>0){DATA.examStreak=(DATA.examStreak||0)+1;if(!DATA.examCheckinLog.find(l=>l.date===yS))DATA.examCheckinLog.push({date:yS,lawDone:ld,finDone:fd});saveData(DATA);}})();
+
+// 补剂提醒
+function checkReminders(){const h=new Date().getHours();const c=DATA.supplementChecks[TODAY]||{};const items=document.querySelectorAll('.supp-item');DATA.suppTimes.forEach((time,i)=>{const k=`s${i}`;if(!c[k]&&items[i]){const th=time.includes('早餐')?8:time.includes('午餐')?13:time.includes('晚餐')?19:10;if(h>=th)items[i].classList.add('reminder-pulse');}});}
+checkReminders();setInterval(checkReminders,1800000);
+</script>
+</body>
+</html>
