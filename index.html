@@ -30,14 +30,14 @@
   --radius:14px; --radius-sm:10px; --radius-xs:7px;
   --nav-width:68px;
   --safe-top:max(env(safe-area-inset-top),28px);
-  --safe-bottom:max(env(safe-area-inset-bottom),12px);
+  --safe-bottom:max(env(safe-area-inset-bottom),48px);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;background:var(--bg-page);color:var(--text-primary);line-height:1.6;min-height:100%;overflow-x:hidden;-webkit-tap-highlight-color:transparent;touch-action:pan-y;}
 .app-shell{display:block;min-height:100vh;background:var(--bg-page);padding-bottom:var(--safe-bottom);}
 
 /* 左侧导航 - 改为固定定位 */
-.nav-sidebar{position:fixed;top:0;left:0;width:var(--nav-width);height:100vh;height:100dvh;background:var(--bg-nav);border-right:1px solid var(--border-light);display:flex;flex-direction:column;align-items:center;padding-top:var(--safe-top);z-index:200;}
+.nav-sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--nav-width);height:auto;background:var(--bg-nav);border-right:1px solid var(--border-light);display:flex;flex-direction:column;align-items:center;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);z-index:200;}
 .nav-logo{width:100%;padding:14px 0 10px;text-align:center;border-bottom:1px solid var(--border-light);}
 .nav-logo-icon{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;background:var(--bg-card);border-radius:12px;border:1px solid var(--border-light);font-size:22px;box-shadow:var(--shadow-card);}
 .nav-item{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 6px;cursor:pointer;transition:all 0.25s;position:relative;min-height:58px;}
