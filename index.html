@@ -216,11 +216,11 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica 
 .fin-income{color:var(--c-exam);}.fin-expense{color:var(--c-finance);}.fin-balance{color:var(--c-media);}
 .finance-box .fin-label{font-size:10px;color:var(--text-muted);}
 
-.add-record-form{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;border:1px solid var(--border-light);}
+.add-record-form{background:var(--bg-card-alt);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;border:1px solid var(--border-light);overflow:hidden;box-sizing:border-box;}
 .add-record-form .form-title{font-size:13px;font-weight:600;margin-bottom:8px;}
 .form-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
 .form-row label{font-size:12px;color:var(--text-secondary);width:40px;flex-shrink:0;}
-.form-row input,.form-row select{flex:1;padding:7px 8px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);color:var(--text-primary);min-height:36px;}
+.form-row input,.form-row select{flex:1;min-width:0;max-width:100%;padding:7px 8px;border:1px solid var(--border-light);border-radius:var(--radius-xs);font-size:13px;background:var(--bg-input);color:var(--text-primary);min-height:36px;box-sizing:border-box;}
 .form-row input:focus,.form-row select:focus{outline:1px solid var(--c-finance);}
 .form-btns{display:flex;gap:6px;margin-top:8px;}
 .btn-add{background:var(--c-finance);color:#fff;border:none;padding:9px 16px;border-radius:var(--radius-xs);font-size:13px;cursor:pointer;min-height:38px;}
@@ -368,16 +368,12 @@ html,body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica 
 
         <div class="subject-card">
           <div class="subject-name">📖 经济法 <button class="add-btn add-btn-exam" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="openEditModal('law')">⚙编辑任务</button></div>
-          <div class="tab-group"><button class="tab-btn active" onclick="switchTab(this,'lawToday','law')">今日</button><button class="tab-btn" onclick="switchTab(this,'lawReview','law')">复习节点</button></div>
-          <div class="tab-content active" id="lawToday"></div>
-          <div class="tab-content" id="lawReview"></div>
+          <div class="tab-content active" id="lawToday" style="margin-top:10px"></div>
         </div>
 
         <div class="subject-card">
           <div class="subject-name">🔢 财务管理 <button class="add-btn add-btn-exam" style="font-size:11px;padding:4px 8px;min-height:28px" onclick="openEditModal('fin')">⚙编辑任务</button></div>
-          <div class="tab-group"><button class="tab-btn active" onclick="switchTab(this,'finToday','fin')">今日</button><button class="tab-btn" onclick="switchTab(this,'finReview','fin')">复习节点</button></div>
-          <div class="tab-content active" id="finToday"></div>
-          <div class="tab-content" id="finReview"></div>
+          <div class="tab-content active" id="finToday" style="margin-top:10px"></div>
         </div>
 
         <div class="study-progress-bar"><div class="card-title" style="margin-bottom:8px">📈 备考进度</div>
